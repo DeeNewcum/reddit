@@ -7,9 +7,9 @@
     use warnings;
 
     use JSON::XS;
-    our $username;
+    our $filename;
     BEGIN {
-        $username = shift @ARGV;
+        $filename = shift @ARGV;
     }
     use Getopt::Casual;
 
@@ -22,12 +22,15 @@
 
 
 sub usage {$/=undef; die <DATA>}
-$username or usage();
-$username =~ s/\.json$//s;
-#print Dumper [$username, \%ARGV]; exit;
+defined($filename) or usage();
+$filename =~ s/\.json$//s;
+if ($ARGV{'--dump'}) {
+    print Dumper $filename, \%ARGV;
+    exit;
+}
 
 
-open my $fin, '<', "$username.json"     or die $!;
+open my $fin, '<', "$filename.json"     or die $!;
 my $json = decode_json( do {local $/=undef; <$fin>} );
 
 foreach my $child (@{$json->{data}{children}}) {
@@ -57,7 +60,7 @@ foreach my $child (@{$json->{data}{children}}) {
 
 
 
-# given a chunk of JSON, print the URL that poitns to that
+# given a chunk of JSON, print the URL that points to that
 sub reddit_url {
     my $json = shift;
     if ($json->{kind} eq 't1') {        # comment
@@ -96,8 +99,13 @@ sub word_wrap {
 
 
 __DATA__
-usage:   grep_comments.pl <options>
+usage:   grep_comments.pl <username>  <options>
 
--b      a regular expression to use to search the body
+-b <regexp>
+    a regular expression to use to search the body
 
--s      a specific subreddit to focus on
+-s <subreddit>
+    a specific subreddit to focus on
+
+--dump
+    (development only)  Show how %ARGV is parsed.
