@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./grep_comments.pl "$1" -b '\b(I was|myself|I had|I want\S*|I feel|I felt|I would like|I wish|I (\S*)?care)\b' | less

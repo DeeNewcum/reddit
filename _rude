@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./grep_comments.pl "$1" -b '\b(ass|assh\S*|nigger|shit|cunt|pussy\S*|fuck\S*)\b' | less

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./grep_comments.pl "$1" -b '\b(woman|women|female|man|men|male|guy|girl|him|his|she|her|hers|himself|herself|girlfriend|boyfriend)\b' | less

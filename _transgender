@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./grep_comments.pl "$1" '\b((?!=transportation|transmission|transcript)trans\S*|cis|cisgender)\b' | less
