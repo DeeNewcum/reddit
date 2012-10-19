@@ -1,3 +1,6 @@
 #!/bin/bash
 
+# try to find comments where the Redditor is talking more about themselves (how they identify, what
+# they think about themselves, etc) than about others.
+
 ./grep_comments.pl "$1" -b '\b(I was|myself|I had|I want\S*|I feel|I felt|I would like|I wish|I (\S*)?care)\b' | less

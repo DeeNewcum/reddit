@@ -1,3 +1,5 @@
 #!/bin/bash
 
+# find comments where the poster is talking about trans* issues
+
 ./grep_comments.pl "$1" '\b((?!=transportation|transmission|transcript)trans\S*|cis|cisgender)\b' | less
