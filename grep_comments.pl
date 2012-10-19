@@ -47,8 +47,8 @@ foreach my $child (@{$json->{data}{children}}) {
         print reddit_url($child), "\n";
         my $text = $child->{data}{body};
         if ($ARGV{'-b'}) {
-            while ($text =~ s/($ARGV{'-b'})/\e[91m$1\e[0m/gs) {
-            }
+            #while ($text =~ s/($ARGV{'-b'})/\e[91m$1\e[0m/gs) {
+            $text =~ s/($ARGV{'-b'})/\e[91m$1\e[0m/gs;
         }
         $text = word_wrap(reddit_unescape($text));
         $text =~ s/^/    /mg;
