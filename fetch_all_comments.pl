@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
 
 # Downloads all comments for a specific user.  Right now, it's just in JSON format.
+#
+# NOTE: this only downloads the first 1000 comments, see:
+#               http://www.reddit.com/r/ideasfortheadmins/comments/10tai6/#c6gicdf
 
     use strict;
     use warnings;
