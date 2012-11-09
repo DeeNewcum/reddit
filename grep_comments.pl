@@ -38,6 +38,9 @@ foreach my $child (@{$json->{data}{children}}) {
     if ($ARGV{'-s'}) {
         next unless (lc($child->{data}{subreddit}) eq lc($ARGV{'-s'}));
     }
+    if (exists $ARGV{'--lower'}) {
+        next unless (score($child) < $ARGV{'--lower'});
+    }
     if ($child->{kind} eq 't1') {           # comment
         if ($ARGV{'-b'}) {
             next unless ($child->{data}{body} =~ /$ARGV{'-b'}/o);
@@ -60,6 +63,10 @@ foreach my $child (@{$json->{data}{children}}) {
 } 
 
 
+sub score {
+    my $json = shift;
+    return ($json->{data}{ups} || 0) - ($json->{data}{downs} || 0);
+}
 
 
 sub reddit_unescape {
@@ -85,6 +92,9 @@ usage:   grep_comments.pl <username>  <options>
 
 -s <subreddit>
     a specific subreddit to focus on
+
+--lower <max score>
+    Score must be below this.
 
 --dump
     (development only)  Show how %ARGV is parsed.
