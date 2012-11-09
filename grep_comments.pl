@@ -12,6 +12,7 @@
         $filename = shift @ARGV;
     }
     use Getopt::Casual;
+    use SprintfReddit;
 
     #use Const::Fast;
 
@@ -44,7 +45,7 @@ foreach my $child (@{$json->{data}{children}}) {
     }
 
     if ($child->{kind} eq 't1') {           # comment
-        print reddit_url($child), "\n";
+        print sprintf_reddit("%u  [%s]\n", $child);
         my $text = $child->{data}{body};
         if ($ARGV{'-b'}) {
             #while ($text =~ s/($ARGV{'-b'})/\e[91m$1\e[0m/gs) {
@@ -58,28 +59,6 @@ foreach my $child (@{$json->{data}{children}}) {
     }
 } 
 
-
-
-# given a chunk of JSON, print the URL that points to that
-sub reddit_url {
-    my $json = shift;
-    if ($json->{kind} eq 't1') {        # comment
-        return 
-            "http://reddit.com/r/" . $json->{data}{subreddit} . "/comments/" .
-            reddit_id_only($json->{data}{link_id}) . "/-/" . $json->{data}{id};
-    } elsif ($json->{kind} eq 't3') {       # story
-        return $json->{data}{url};
-    } elsif ($json->{kind} eq 't5') {       # subreddit
-        die;
-    }
-}
-
-
-sub reddit_id_only {
-    my $id = shift;
-    $id =~ s/^t\d_//;
-    return $id;
-}
 
 
 
