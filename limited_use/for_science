@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+
+# Pass in a URL to a story.  This outputs the HTML fragment that is used for entries on this page:
+#
+#       http://paperlined.org/apps/+isms/for_science.html
+
+
+# Prerequisites -- Before installing, do this:
+# 
+#           cpanm Clipboard
+#           sudo apt-get install xclip
+
+    use strict;
+    use warnings;
+
+    use LWP::Simple;
+    use JSON::XS;
+    use CGI         qw[ escapeHTML ];
+    use POSIX       qw[ strftime ];
+    use Clipboard;
+    use Data::Dumper;
+
+    # for DEVELOPMENT PURPOSES only -- should be commented out normally
+    #@ARGV = 'http://www.reddit.com/r/AskAnthropology/comments/1uh2w6/what_do_anthropologists_think_about_the_use_of/'  unless @ARGV;
+
+my $original_url = shift
+    or die "Specify the URL of a story/comment/user/subreddit\n";
+
+# append ".json" if it isn't already there
+my $json_url = $original_url;
+$json_url =~ s#(/(\.json)?)?$#/.json#i;
+
+my $json = get $json_url
+    or die "Unable to fetch that URL\n";
+
+$json = decode_json $json;
+
+    # To debug this info, run something like this:
+    #       curl http://www.reddit.com/r/blog/comments/1osafg/thanks_for_the_gold/.json | pretty -j -
+    # That *should* be the exact same data, though it's possible it isn't.
+    # That uses this utility:  https://github.com/DeeNewcum/dotfiles/blob/master/bin/pretty
+
+#my %kinds = (
+#    t3 => 'comment or story',
+#);
+
+
+# A shortcut to $json->[0]{data}{children}[0]{data}
+my %metadata = %{ $json->[0]{data}{children}[0]{data} };
+
+# the HTML snippet that needs to be pasted into:
+#        http://paperlined.org/apps/+isms/for_science.html   
+my $snippet = sprintf qq(<li><a href="%s">%s</a>\n           <span>[%s, %d comments, %s]</span>\n),
+        $metadata{url},
+        escapeHTML($metadata{title}),
+        $metadata{subreddit},
+        $metadata{num_comments},
+        strftime("<!-- %d --> %b %Y", gmtime($metadata{created_utc}));
+
+Clipboard->copy($snippet);
+
+
+print "$snippet\n\nThis has been copied into the clipboard.\n";
+
+
+
