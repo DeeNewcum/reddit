@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+
+# Pass in a URL to a story/comment/user/subreddit, and it displays the exact date/time that the
+# story/comment/etc was created.
+
+    use strict;
+    use warnings;
+
+    use LWP::Simple;
+    use JSON::XS;
+    use Data::Dumper;
+
+    # for DEVELOPMENT PURPOSES only -- should be commented out normally
+    #@ARGV = 'http://www.reddit.com/r/blog/comments/1osafg/thanks_for_the_gold/'  unless @ARGV;
+
+my $json_url = shift
+    or die "Specify the URL of a story/comment/user/subreddit\n";
+
+# append ".json" if it isn't already there
+$json_url =~ s#(/(\.json)?)?$#/.json#i;
+
+my $json = get $json_url
+    or die "Unable to fetch that URL\n";
+
+$json = decode_json $json;
+
+    # To debug this info, run something like this:
+    #       curl http://www.reddit.com/r/blog/comments/1osafg/thanks_for_the_gold/.json | pretty -j -
+    # That *should* be the exact same data, though it's possible it isn't.
+    # That uses this utility:  https://github.com/DeeNewcum/dotfiles/blob/master/bin/pretty
+
+#my %kinds = (
+#    t3 => 'comment or story',
+#);
+
+my $kind    = $json->[0]{data}{children}[0]{kind};
+my $created = $json->[0]{data}{children}[0]{data}{created_utc};
+            #die Dumper [$kind, $created];
+
+print "This <$kind> was created on:\n\t",
+        scalar(gmtime($created)), "\n";
