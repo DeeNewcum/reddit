@@ -10,6 +10,17 @@
     use JSON::XS;
     use Data::Dumper;
 
+    # see http://www.reddit.com/dev/api#fullnames
+    my %type_prefixes = (
+        t1 => 'comment',
+        t2 => 'account',
+        t3 => 'story',      # officially called a "link", I prefer "story", since it's a link + comments
+        t4 => 'message',
+        t5 => 'subreddit',
+        t6 => 'award',
+        t8 => 'promo campaign',
+    );
+
     # for DEVELOPMENT PURPOSES only -- should be commented out normally
     #@ARGV = 'http://www.reddit.com/r/blog/comments/1osafg/thanks_for_the_gold/'  unless @ARGV;
 
@@ -54,7 +65,7 @@ if ($kind eq 'Listing') {
 my $created = $json->{data}{created_utc};
             #die Dumper [$kind, $created];
 
-print "This <$kind> was created on:\n\t",
+print "This $type_prefixes{$kind} was created on:\n\t",
         scalar(gmtime($created)), "\n";
 
 
