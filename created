@@ -23,6 +23,7 @@
 
     # for DEVELOPMENT PURPOSES only -- should be commented out normally
     #@ARGV = 'http://www.reddit.com/r/blog/comments/1osafg/thanks_for_the_gold/'  unless @ARGV;
+    #@ARGV = 'http://www.reddit.com/r/meta_feminism' unless @ARGV;
 
 my $json_url = shift
     or die "Specify the URL of a story/comment/user/subreddit\n";
