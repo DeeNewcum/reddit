@@ -50,19 +50,13 @@ $json = decode_json $json;
     # That *should* be the exact same data, though it's possible it isn't.
     # That uses this utility:  https://github.com/DeeNewcum/dotfiles/blob/master/bin/pretty
 
-#my %kinds = (
-#    t3 => 'comment or story',
-#);
-
 $json = $json->[0]      if (ref($json) eq 'ARRAY');
 
-my $kind = $json->{kind};
-
-if ($kind eq 'Listing') {
+if ($json->{kind} eq 'Listing') {
     $json = $json->{data}{children}[0];
 }
 
-   $kind    = $json->{kind};
+my $kind    = $json->{kind};
 my $created = $json->{data}{created_utc};
             #die Dumper [$kind, $created];
 
