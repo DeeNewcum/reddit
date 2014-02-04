@@ -16,13 +16,22 @@
 my $json_url = shift
     or die "Specify the URL of a story/comment/user/subreddit\n";
 
+
+# If this is a subreddit, then get the subreddit's metadata.  If we didn't append "/about", then
+# we would get a list of posts, which isn't what we want.
+if ($json_url =~ m#reddit\.com/r/[^/]*/?$#i) {
+    $json_url =~ s#/?$#/about/.json#;
+}
+
 # append ".json" if it isn't already there
 $json_url =~ s#(/(\.json)?)?$#/.json#i;
+print "Fetching $json_url\n\n";
 
 my $json = get $json_url
     or die "Unable to fetch that URL\n";
 
 $json = decode_json $json;
+        # die Dumper $json;
 
     # To debug this info, run something like this:
     #       curl http://www.reddit.com/r/blog/comments/1osafg/thanks_for_the_gold/.json | pretty -j -
@@ -33,9 +42,19 @@ $json = decode_json $json;
 #    t3 => 'comment or story',
 #);
 
-my $kind    = $json->[0]{data}{children}[0]{kind};
-my $created = $json->[0]{data}{children}[0]{data}{created_utc};
+$json = $json->[0]      if (ref($json) eq 'ARRAY');
+
+my $kind = $json->{kind};
+
+if ($kind eq 'Listing') {
+    $json = $json->{data}{children}[0];
+}
+
+   $kind    = $json->{kind};
+my $created = $json->{data}{created_utc};
             #die Dumper [$kind, $created];
 
 print "This <$kind> was created on:\n\t",
         scalar(gmtime($created)), "\n";
+
+
