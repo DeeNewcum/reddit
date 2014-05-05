@@ -49,6 +49,7 @@ while (@gilded_report_urls) {
         ($parsed{text})     = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
         ($parsed{id})       = ($comment =~ m#<a name="([^"]*)#si);
         ($parsed{url})      = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
+        ($parsed{score})    = ($comment =~ m#<span class="score unvoted">(.*?) point#si);
 
         next if ($parsed{url} !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
 
@@ -67,7 +68,7 @@ while (@gilded_report_urls) {
 
 ## sort by number of gildings, followed by most recent first
 @parsed_comments = sort { $b->{gildings} <=> $a->{gildings} ||
-                $b->{id} cmp $a->{id}} @parsed_comments;
+                $b->{score} <=> $a->{score}} @parsed_comments;
 
 ## output the data
 print "There have been $total total gildings so far:\n\n";
@@ -83,7 +84,7 @@ foreach my $comment (@parsed_comments) {
         $text =~ s/[\.\s]+$//s;
         $text .= " " . chr(8230);   # &hellip;
     }
-    print "[$text]($comment->{url}?context=3)\n";
+    print "[$text]($comment->{url}?context=2) ^^$comment->{score}\n";
 }
 print "\n[(source code)](https://github.com/DeeNewcum/reddit/blob/master/total_gilded)\n";
 
