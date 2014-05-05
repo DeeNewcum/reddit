@@ -42,24 +42,21 @@ while (@gilded_report_urls) {
         my $comment = $1;
         #print $comment; exit;
 
-        my ($gildings) = ($comment =~ m# class="gilded-icon"[^>]*>x(\d+)#si);
-        $gildings = 1 unless defined($gildings);
-        my ($comment_text) = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
-        my ($comment_id) = ($comment =~ m#<a name="([^"]*)#si);
-        my ($comment_url) = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
+        my %parsed;
 
-        next if ($comment_url !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
+        ($parsed{gildings}) = ($comment =~ m# class="gilded-icon"[^>]*>x(\d+)#si);
+        $parsed{gildings} = 1 unless defined($parsed{gildings});
+        ($parsed{text})     = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
+        ($parsed{id})       = ($comment =~ m#<a name="([^"]*)#si);
+        ($parsed{url})      = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
 
-        $total += $gildings;
-        $total_this_time += $gildings;
-        #print Dumper [$gildings, $comment_text, $comment_id, $comment_url];  exit;
+        next if ($parsed{url} !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
 
-        push @parsed_comments, {
-            gildings => $gildings,
-            text     => $comment_text,
-            url      => $comment_url,
-            id       => $comment_id,
-        };
+        $total += $parsed{gildings};
+        $total_this_time += $parsed{gildings};
+        #print Dumper \%parsed;
+
+        push @parsed_comments, \%parsed;
     }
     last if ($total_this_time == 0);
 
@@ -73,18 +70,18 @@ while (@gilded_report_urls) {
                 $b->{id} cmp $a->{id}} @parsed_comments;
 
 ## output the data
-print "This story has had $total total gildings so far:\n\n";
+print "There have been $total total gildings so far:\n\n";
 foreach my $comment (@parsed_comments) {
     print "* ";
     if ($comment->{gildings} > 1) {
         print "x$comment->{gildings} ";
     }
     my $text = html2text($comment->{text});
-    if (length($text) > 80) {
+    if (length($text) > 80) {       # truncate long comments
         $text = substr($text, 0, 80);
-        $text =~ s/\W\w+$//s;     # truncate at a word boundary
+        $text =~ s/\W\w+$//s;       # truncate at a word boundary
         $text =~ s/[\.\s]+$//s;
-        $text .= " " . chr(8230);     # &hellip;
+        $text .= " " . chr(8230);   # &hellip;
     }
     print "[$text]($comment->{url}?context=3)\n";
 }
@@ -97,11 +94,6 @@ sub html2text {
     s/<[^>]*>//sg;
     # unescape HTML entities
     $_ = CGI::unescapeHTML($_);
-    #s/&gt;/>/g;
-    #s/&lt;/</g;
-    #s/&quot;/"/g;
-    #s/&nbsp;/ /g;
-    #s/&amp;/&/g;
     $_ =~ s/[\n\r]//sg;
     return $_;
 }
