@@ -84,7 +84,7 @@ foreach my $comment (@parsed_comments) {
         $text =~ s/[\.\s]+$//s;
         $text .= " " . chr(8230);   # &hellip;
     }
-    print "[$text]($comment->{url}?context=2)\n";
+    print qq|[$text]($comment->{url}?context=2 "$comment->{score} points")\n|;
 }
 print "\n[(source code)](https://github.com/DeeNewcum/reddit/blob/master/total_gilded)\n";
 
