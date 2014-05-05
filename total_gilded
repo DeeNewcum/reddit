@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+
+# Given a single story, show how many times that story has been gilded, across all comments in that
+# story.
+#
+# (specifically written for http://redd.it/24seva but it could work on anything else)
+
+    use strict;
+    use warnings;
+
+    use LWP::Simple;
+    use CGI;
+    use Data::Dumper;
+
+    # for DEVELOPMENT PURPOSES ONLY
+    @ARGV = ('http://www.reddit.com/r/blog/comments/24seva/were_fighting_for_marriage_equality_in_utah_and/');
+
+binmode(STDOUT, ":utf8");
+
+my $url = shift
+    or die "Specify the URL of a specific story.\n";
+
+$url =~ m#http://(?:www\.)?reddit\.com/r/([^/]+)/comments/([^/]+)#i
+    or die "Story URL must be of the form http://www.reddit.com/r/subreddit/comments/6789ab\n";
+
+my $subreddit = $1;
+my $story_id  = $2;
+
+my $gilded_html = get "http://www.reddit.com/r/$subreddit/gilded";
+
+my $total = 0;
+my @parsed_comments;
+while ($gilded_html =~ m#(<div [^>]*\bclass=["']?[^>"]*gilded comment.*?</form>.*?>permalink<.*?</div>)#sig) {
+    my $comment = $1;
+    #print $comment; exit;
+
+    my ($gildings) = ($comment =~ m# class="gilded-icon"[^>]*>x(\d+)#si);
+    $gildings = 1 unless defined($gildings);
+    my ($comment_text) = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
+    my ($comment_id) = ($comment =~ m#<a name="([^"]*)#si);
+    my ($comment_url) = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
+
+    next if ($comment_url !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
+
+    $total += $gildings;
+    #print Dumper [$gildings, $comment_text, $comment_id, $comment_url];  exit;
+
+    push @parsed_comments, {
+        gildings => $gildings,
+        text     => $comment_text,
+        url      => $comment_url,
+        id       => $comment_id,
+    };
+}
+
+## sort by number of gildings, followed by most recent first
+@parsed_comments = sort { $b->{gildings} <=> $a->{gildings} ||
+                $b->{id} cmp $a->{id}} @parsed_comments;
+
+## output the data
+print "All gildings on this story:\n\n";
+foreach my $comment (@parsed_comments) {
+    print "* ";
+    if ($comment->{gildings} > 1) {
+        print "x$comment->{gildings} ";
+    }
+    my $text = html2text($comment->{text});
+    if (length($text) > 80) {
+        $text = substr($text, 0, 80);
+        $text =~ s/\W\w+$//s;     # truncate at a word boundary
+        $text =~ s/[\.\s]+$//s;
+        $text .= " " . chr(8230);     # &hellip;
+    }
+    print "[$text]($comment->{url}?context=3)\n";
+}
+print "\nTotal gildings: $total\n";
+
+
+sub html2text {
+    local $_ = shift @_;
+    # remove HTML tags
+    s/<[^>]*>//sg;
+    # unescape HTML entities
+    $_ = CGI::unescapeHTML($_);
+    #s/&gt;/>/g;
+    #s/&lt;/</g;
+    #s/&quot;/"/g;
+    #s/&nbsp;/ /g;
+    #s/&amp;/&/g;
+    $_ =~ s/[\n\r]//sg;
+    return $_;
+}
+
