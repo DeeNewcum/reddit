@@ -44,18 +44,20 @@ while (@gilded_report_urls) {
 
         my %parsed;
 
-        ($parsed{gildings}) = ($comment =~ m# class="gilded-icon"[^>]*>x(\d+)#si);
+        ($parsed{gildings})    = ($comment =~ m# class="gilded-icon"[^>]*>x(\d+)#si);
         $parsed{gildings} = 1 unless defined($parsed{gildings});
-        ($parsed{text})     = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
-        ($parsed{id})       = ($comment =~ m#<a name="([^"]*)#si);
-        ($parsed{url})      = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
-        ($parsed{score})    = ($comment =~ m#<span class="score unvoted">(.*?) point#si);
+        ($parsed{text})        = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
+        ($parsed{id})          = ($comment =~ m#<a name="([^"]*)#si);
+        ($parsed{url})         = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
+        ($parsed{score})       = ($comment =~ m#<span class="score unvoted">(.*?) point#si);
+        ($parsed{score_ups})   = ($comment =~ m# data-ups="(\d+)"#si);
+        ($parsed{score_downs}) = ($comment =~ m# data-downs="(\d+)#si);
 
         next if ($parsed{url} !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
 
         $total += $parsed{gildings};
         $total_this_time += $parsed{gildings};
-        #print Dumper \%parsed;
+        #print Dumper \%parsed;  exit;
 
         push @parsed_comments, \%parsed;
     }
@@ -84,9 +86,9 @@ foreach my $comment (@parsed_comments) {
         $text =~ s/[\.\s]+$//s;
         $text .= " " . chr(8230);   # &hellip;
     }
-    print qq|[$text]($comment->{url}?context=2 "$comment->{score} points")\n|;
+    print qq#[$text]($comment->{url}?context=2 "$comment->{score} points (+$comment->{score_ups} | -$comment->{score_downs})")\n#;
 }
-print "\n[(source code)](https://github.com/DeeNewcum/reddit/blob/master/total_gilded)\n";
+print "\nMouse over to see scores. [Source code here](https://github.com/DeeNewcum/reddit/blob/master/total_gilded).\n";
 
 
 sub html2text {
