@@ -59,7 +59,7 @@ while (@gilded_report_urls) {
 
         push @parsed_comments, \%parsed;
     }
-    last if ($total_this_time == 0);
+    last if ($total > 0 && $total_this_time == 0);
 
     if ($gilded_html =~ m#(http://[^'"]*after=t1_[^'"]*)#si) {
         push @gilded_report_urls, CGI::unescapeHTML($1);
@@ -71,20 +71,20 @@ while (@gilded_report_urls) {
                 $b->{score} <=> $a->{score}} @parsed_comments;
 
 ## output the data
-print "There have been $total total gildings so far:\n\n";
+print "This story has $total gildings across ", scalar(@parsed_comments), " comments:\n\n";
 foreach my $comment (@parsed_comments) {
     print "* ";
     if ($comment->{gildings} > 1) {
         print "x$comment->{gildings} ";
     }
     my $text = html2text($comment->{text});
-    if (length($text) > 80) {       # truncate long comments
-        $text = substr($text, 0, 80);
+    if (length($text) > 70) {       # truncate long comments
+        $text = substr($text, 0, 70);
         $text =~ s/\W\w+$//s;       # truncate at a word boundary
         $text =~ s/[\.\s]+$//s;
         $text .= " " . chr(8230);   # &hellip;
     }
-    print "[$text]($comment->{url}?context=2) ^^$comment->{score}\n";
+    print "[$text]($comment->{url}?context=2)\n";
 }
 print "\n[(source code)](https://github.com/DeeNewcum/reddit/blob/master/total_gilded)\n";
 
