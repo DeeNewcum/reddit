@@ -3,7 +3,8 @@
 # Given a single story, show how many times that story has been gilded, across all comments in that
 # story.
 #
-# (specifically written for http://redd.it/24seva but it could work on anything else)
+# Example call:
+#       ./total_gilded http://www.reddit.com/r/blog/comments/24seva | xclip -selection clipboard
 
     use strict;
     use warnings;
@@ -13,7 +14,7 @@
     use Data::Dumper;
 
     # for DEVELOPMENT PURPOSES ONLY
-    @ARGV = ('http://www.reddit.com/r/blog/comments/24seva/were_fighting_for_marriage_equality_in_utah_and/');
+    #@ARGV = ('http://www.reddit.com/r/blog/comments/24seva/were_fighting_for_marriage_equality_in_utah_and/');
 
 binmode(STDOUT, ":utf8");
 
@@ -26,31 +27,45 @@ $url =~ m#http://(?:www\.)?reddit\.com/r/([^/]+)/comments/([^/]+)#i
 my $subreddit = $1;
 my $story_id  = $2;
 
-my $gilded_html = get "http://www.reddit.com/r/$subreddit/gilded";
-
 my $total = 0;
 my @parsed_comments;
-while ($gilded_html =~ m#(<div [^>]*\bclass=["']?[^>"]*gilded comment.*?</form>.*?>permalink<.*?</div>)#sig) {
-    my $comment = $1;
-    #print $comment; exit;
 
-    my ($gildings) = ($comment =~ m# class="gilded-icon"[^>]*>x(\d+)#si);
-    $gildings = 1 unless defined($gildings);
-    my ($comment_text) = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
-    my ($comment_id) = ($comment =~ m#<a name="([^"]*)#si);
-    my ($comment_url) = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
+my @gilded_report_urls = ("http://www.reddit.com/r/$subreddit/gilded");
+while (@gilded_report_urls) {
+    my $gilded_report_url = shift @gilded_report_urls;
+    my $gilded_html = get $gilded_report_url;
 
-    next if ($comment_url !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
+    print STDERR ">> $gilded_report_url\n";
 
-    $total += $gildings;
-    #print Dumper [$gildings, $comment_text, $comment_id, $comment_url];  exit;
+    my $total_this_time = 0;
+    while ($gilded_html =~ m#(<div [^>]*\bclass=["']?[^>"]*gilded comment.*?</form>.*?>permalink<.*?</div>)#sig) {
+        my $comment = $1;
+        #print $comment; exit;
 
-    push @parsed_comments, {
-        gildings => $gildings,
-        text     => $comment_text,
-        url      => $comment_url,
-        id       => $comment_id,
-    };
+        my ($gildings) = ($comment =~ m# class="gilded-icon"[^>]*>x(\d+)#si);
+        $gildings = 1 unless defined($gildings);
+        my ($comment_text) = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
+        my ($comment_id) = ($comment =~ m#<a name="([^"]*)#si);
+        my ($comment_url) = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
+
+        next if ($comment_url !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
+
+        $total += $gildings;
+        $total_this_time += $gildings;
+        #print Dumper [$gildings, $comment_text, $comment_id, $comment_url];  exit;
+
+        push @parsed_comments, {
+            gildings => $gildings,
+            text     => $comment_text,
+            url      => $comment_url,
+            id       => $comment_id,
+        };
+    }
+    last if ($total_this_time == 0);
+
+    if ($gilded_html =~ m#(http://[^'"]*after=t1_[^'"]*)#si) {
+        push @gilded_report_urls, CGI::unescapeHTML($1);
+    }
 }
 
 ## sort by number of gildings, followed by most recent first
@@ -58,7 +73,7 @@ while ($gilded_html =~ m#(<div [^>]*\bclass=["']?[^>"]*gilded comment.*?</form>.
                 $b->{id} cmp $a->{id}} @parsed_comments;
 
 ## output the data
-print "All gildings on this story:\n\n";
+print "This story has had $total total gildings so far:\n\n";
 foreach my $comment (@parsed_comments) {
     print "* ";
     if ($comment->{gildings} > 1) {
@@ -73,7 +88,7 @@ foreach my $comment (@parsed_comments) {
     }
     print "[$text]($comment->{url}?context=3)\n";
 }
-print "\nTotal gildings: $total\n";
+print "\n[(source code)](https://github.com/DeeNewcum/reddit/blob/master/total_gilded)\n";
 
 
 sub html2text {
