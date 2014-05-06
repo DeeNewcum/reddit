@@ -40,7 +40,7 @@ while (@gilded_report_urls) {
     print STDERR ">> $gilded_report_url\n";
 
     my $total_this_time = 0;
-    while ($gilded_html =~ m#(<div [^>]*\bclass=["']?[^>"]*gilded comment.*?</form>.*?>permalink<.*?</div>)#sig) {
+    while ($gilded_html =~ m#(<div class="\s*thing\b.*?</form>.*?</ul>)#sig) {
         my $comment = $1;
         #print $comment; exit;
 
@@ -56,6 +56,10 @@ while (@gilded_report_urls) {
         ($parsed{score_downs}) = ($comment =~ m# data-downs="(\d+)#si);
 
         next if ($parsed{url} !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
+
+        #if ($comment =~ /id-t3_24rq6c/) {
+        #    print Dumper \%parsed; exit;
+        #}
 
         $total += $parsed{gildings};
         $total_this_time += $parsed{gildings};
