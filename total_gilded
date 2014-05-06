@@ -21,6 +21,8 @@ binmode(STDOUT, ":utf8");
 my $url = shift
     or die "Specify the URL of a specific story.\n";
 
+my $short = getopt_flag('--short') || 0;
+
 $url =~ m#http://(?:www\.)?reddit\.com/r/([^/]+)/comments/([^/]+)#i
     or die "Story URL must be of the form http://www.reddit.com/r/subreddit/comments/6789ab\n";
 
@@ -73,22 +75,28 @@ while (@gilded_report_urls) {
                 $b->{score} <=> $a->{score}} @parsed_comments;
 
 ## output the data
-print "This story has $total gildings across ", scalar(@parsed_comments), " comments:\n\n";
-foreach my $comment (@parsed_comments) {
-    print "* ";
-    if ($comment->{gildings} > 1) {
-        print "x$comment->{gildings} ";
+print "This story has received $total pieces of gold across ", scalar(@parsed_comments), " comments.\n\n";
+if (!$short) {
+    foreach my $comment (@parsed_comments) {
+        print "* ";
+        if ($comment->{gildings} > 1) {
+            print "x$comment->{gildings} ";
+        }
+        my $text = escape_markdown(html2text($comment->{text}));
+        if (length($text) > 70) {       # truncate long comments
+            $text = substr($text, 0, 70);
+            $text =~ s/\W\w+$//s;       # truncate at a word boundary
+            $text =~ s/[\.\s]+$//s;
+            $text .= " " . chr(8230);   # &hellip;
+        }
+        print qq#[$text]($comment->{url}?context=2 "$comment->{score} points (+$comment->{score_ups} | -$comment->{score_downs})")\n#;
     }
-    my $text = html2text($comment->{text});
-    if (length($text) > 70) {       # truncate long comments
-        $text = substr($text, 0, 70);
-        $text =~ s/\W\w+$//s;       # truncate at a word boundary
-        $text =~ s/[\.\s]+$//s;
-        $text .= " " . chr(8230);   # &hellip;
-    }
-    print qq#[$text]($comment->{url}?context=2 "$comment->{score} points (+$comment->{score_ups} | -$comment->{score_downs})")\n#;
 }
-print "\nMouse over to see scores. [Source code here](https://github.com/DeeNewcum/reddit/blob/master/total_gilded).\n";
+if ($short) {
+    print "([source code here](https://github.com/DeeNewcum/reddit/blob/master/total_gilded))\n";
+} else {
+    print "\nMouse over to see scores. [Source code here](https://github.com/DeeNewcum/reddit/blob/master/total_gilded).\n";
+}
 
 
 sub html2text {
@@ -101,3 +109,12 @@ sub html2text {
     return $_;
 }
 
+sub escape_markdown {
+    local $_ = shift @_;
+    s/([\[\]\(\)])/\\$1/g;
+    return $_;
+}
+
+# Returns true if the specified flag is present, and if so, removes it from @ARGV.
+# This allows you to call it several times, checking for different flags on each call.
+sub getopt_flag {my($a,$b)=(shift,~~@ARGV);@ARGV=grep{$_ ne$a}@ARGV;$b!=~~@ARGV}
