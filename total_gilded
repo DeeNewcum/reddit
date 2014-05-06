@@ -3,8 +3,14 @@
 # Given a single story, show how many times that story has been gilded, across all comments in that
 # story.
 #
+# Before using this, you may need to install a few packages:
+#   
+#       sudo cpan CGI
+#       sudo cpan LWP
+#
 # Example call:
 #       ./total_gilded http://www.reddit.com/r/blog/comments/24seva | xclip -selection clipboard
+#
 
     use strict;
     use warnings;
@@ -56,10 +62,6 @@ while (@gilded_report_urls) {
         ($parsed{score_downs}) = ($comment =~ m# data-downs="(\d+)#si);
 
         next if ($parsed{url} !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
-
-        #if ($comment =~ /id-t3_24rq6c/) {
-        #    print Dumper \%parsed; exit;
-        #}
 
         $total += $parsed{gildings};
         $total_this_time += $parsed{gildings};
