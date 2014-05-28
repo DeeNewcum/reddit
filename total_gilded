@@ -61,7 +61,7 @@ while (@gilded_report_urls) {
         ($parsed{score_ups})   = ($comment =~ m# data-ups="(\d+)"#si);
         ($parsed{score_downs}) = ($comment =~ m# data-downs="(\d+)#si);
 
-        next if ($parsed{url} !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
+        next if (!$parsed{url} || $parsed{url} !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
 
         $total += $parsed{gildings};
         $total_this_time += $parsed{gildings};
