@@ -29,7 +29,7 @@ my $url = shift
 
 my $short = getopt_flag('--short') || 0;
 
-$url =~ m#http://(?:www\.)?reddit\.com/r/([^/]+)/comments/([^/]+)#i
+$url =~ m#http://(?:www\.)?(?:[a-z]*\.)?reddit\.com/r/([^/]+)/comments/([^/]+)#i
     or die "Story URL must be of the form http://www.reddit.com/r/subreddit/comments/6789ab\n";
 
 my $subreddit = $1;
