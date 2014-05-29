@@ -52,14 +52,17 @@ while (@gilded_report_urls) {
 
         my %parsed;
 
-        ($parsed{gildings})    = ($comment =~ m# class="gilded-icon"[^>]*>x(\d+)#si);
-        $parsed{gildings} = 1 unless defined($parsed{gildings});
+        ($parsed{gildings})    = ($comment =~ m# class="gilded-icon"[^>]* data-count="(\d+)"#si);
         ($parsed{text})        = ($comment =~ m#<form[^>]*>(.*?)</form>#si);
-        ($parsed{id})          = ($comment =~ m#<a name="([^"]*)#si);
-        ($parsed{url})         = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
+        ($parsed{id})          = ($comment =~ m#data-fullname="([^"]*)"#si);
         ($parsed{score})       = ($comment =~ m#<span class="score unvoted">(.*?) point#si);
         ($parsed{score_ups})   = ($comment =~ m# data-ups="(\d+)"#si);
         ($parsed{score_downs}) = ($comment =~ m# data-downs="(\d+)#si);
+        if ($parsed{id} =~ /^t1_/) {                # comment
+            ($parsed{url})         = ($comment =~ m#<a href="([^"]*)[^>]*>permalink<#si);
+        } elsif ($parsed{id} =~ /^t3_/) {           # story
+            ($parsed{url})         = ($comment =~ m#<a class="title[^>]* href="([^"]*)#si);
+        }
 
         next if (!$parsed{url} || $parsed{url} !~ $story_id);        # We're scanning ALL gildings in this subreddit, so ignore gildings that aren't associated with this specific story.
 
@@ -84,6 +87,7 @@ while (@gilded_report_urls) {
 print "This story has received $total pieces of gold across ", scalar(@parsed_comments), " comments.\n\n";
 if (!$short) {
     foreach my $comment (@parsed_comments) {
+        next if ($comment->{id} =~ /^t3_/);     # main story
         print "* ";
         if ($comment->{gildings} > 1) {
             print "x$comment->{gildings} ";
