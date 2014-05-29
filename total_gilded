@@ -71,7 +71,7 @@ while (@gilded_report_urls) {
     }
     last if ($total > 0 && $total_this_time == 0);
 
-    if ($gilded_html =~ m#(http://[^'"]*after=t1_[^'"]*)#si) {
+    if ($gilded_html =~ m#(http://[^'"]*after=t\d_[^'"]*)#si) {
         push @gilded_report_urls, CGI::unescapeHTML($1);
     }
 }
