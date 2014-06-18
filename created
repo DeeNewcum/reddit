@@ -28,16 +28,27 @@
 my $json_url = shift
     or die "Specify the URL of a story/comment/user/subreddit\n";
 
-
-# If this is a subreddit, then get the subreddit's metadata.  If we didn't append "/about", then
-# we would get a list of posts, which isn't what we want.
+# calculate $request_type, since I don't know of a way to get the server to tell us this
+my ($request_type, $request_id) = (undef, '');
 if ($json_url =~ m#reddit\.com/r/[^/]*/?$#i) {
+    $request_type = 't5';       # subreddit
+    # If this is a subreddit, then get the subreddit's metadata.  If we didn't append "/about", then
+    # we would get a list of posts, which isn't what we want.
     $json_url =~ s#/?$#/about/.json#;
+} elsif ($json_url =~ m#reddit\.com/r/[^/]*/comments/([^/]*)/[^/]*/?$#i) {
+    $request_type = 't3';       # link (story)
+    $request_id = $1;
+} elsif ($json_url =~ m#reddit\.com/r/[^/]*/comments/[^/]*/[^/]*/([^/]*)/?$#i) {
+    $request_type = 't1';       # comment
+    $request_id = $1;
+} else {
+    die "unknown request type\n\t";
 }
 
 # append ".json" if it isn't already there
 $json_url =~ s#(/(\.json)?)?$#/.json#i;
-print "Fetching $json_url\n\n";
+print "Fetching $json_url   (request ${request_type}_${request_id})\n\n";
+
 
 my $json = get $json_url
     or die "Unable to fetch that URL\n";
@@ -50,7 +61,11 @@ $json = decode_json $json;
     # That *should* be the exact same data, though it's possible it isn't.
     # That uses this utility:  https://github.com/DeeNewcum/dotfiles/blob/master/bin/pretty
 
-$json = $json->[0]      if (ref($json) eq 'ARRAY');
+if ($request_type eq 't1') {        # comment
+    $json = $json->[1];
+} else {
+    $json = $json->[0]      if (ref($json) eq 'ARRAY');
+}
 
 if ($json->{kind} eq 'Listing') {
     $json = $json->{data}{children}[0];
@@ -60,7 +75,7 @@ my $kind    = $json->{kind};
 my $created = $json->{data}{created_utc};
             #die Dumper [$kind, $created];
 
-print "This $type_prefixes{$kind} was created on:\n\t",
+print "This $type_prefixes{$request_type} was created on:\n\t",
         scalar(gmtime($created)), "\n";
 
 
