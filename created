@@ -79,7 +79,7 @@ my $last_updated = $json->{data}{edited};
 print "This $type_prefixes{$request_type} was created on:\n\t",
         scalar(gmtime($created)), "\n";
 
-if ($last_updated != $created) {
+if (defined($last_updated) && $last_updated > 0 && $last_updated != $created) {
     print "and last updated on:\n\t",
         scalar(gmtime($last_updated)), "\n";
 }
