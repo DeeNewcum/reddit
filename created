@@ -13,7 +13,7 @@
     # see http://www.reddit.com/dev/api#fullnames
     my %type_prefixes = (
         t1 => 'comment',
-        t2 => 'account',
+        t2 => 'user',       # officially called an "account"
         t3 => 'story',      # officially called a "link", I prefer "story", since it's a link + comments
         t4 => 'message',
         t5 => 'subreddit',
@@ -41,13 +41,15 @@ if ($json_url =~ m#reddit\.com/r/[^/]*/?$#i) {
 } elsif ($json_url =~ m#reddit\.com/r/[^/]*/comments/[^/]*/[^/]*/([^/]*)/?$#i) {
     $request_type = 't1';       # comment
     $request_id = $1;
-} else {
-    die "unknown request type\n\t";
+} elsif ($json_url =~ m#reddit\.com/user/[^/]*/?$#i) {
+    $request_type = 't2';       # user
+    $json_url =~ s#/?$#/about.json#;
 }
 
 # append ".json" if it isn't already there
-$json_url =~ s#(/(\.json)?)?$#/.json#i;
-print "Fetching $json_url   (request ${request_type}_${request_id})\n\n";
+$json_url =~ s#(/(\.json)?)?$#/.json#i
+        unless ($request_type eq 't2');
+print "Fetching $json_url\n\n";
 
 
 my $json = get $json_url
@@ -61,7 +63,7 @@ $json = decode_json $json;
     # That *should* be the exact same data, though it's possible it isn't.
     # That uses this utility:  https://github.com/DeeNewcum/dotfiles/blob/master/bin/pretty
 
-if ($request_type eq 't1') {        # comment
+if (($request_type || '') eq 't1') {        # comment
     $json = $json->[1];
 } else {
     $json = $json->[0]      if (ref($json) eq 'ARRAY');
@@ -71,7 +73,9 @@ if ($json->{kind} eq 'Listing') {
     $json = $json->{data}{children}[0];
 }
 
-my $kind         = $json->{kind};
+if (!defined($request_type)) {
+    $request_type = $json->{kind};
+}
 my $created      = $json->{data}{created_utc};
 my $last_updated = $json->{data}{edited};
             #die Dumper [$kind, $created, $last_updated];
