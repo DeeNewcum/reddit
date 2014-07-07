@@ -18,6 +18,7 @@
     use LWP::Simple;
     use CGI;
     use Data::Dumper;
+    #use Devel::Comments;           # uncomment this during development to enable the ### debugging statements
 
     # for DEVELOPMENT PURPOSES ONLY
     #@ARGV = ('http://www.reddit.com/r/blog/comments/24seva/were_fighting_for_marriage_equality_in_utah_and/');
@@ -83,6 +84,8 @@ while (@gilded_report_urls) {
 @parsed_comments = sort { $b->{gildings} <=> $a->{gildings} ||
                 $b->{score} <=> $a->{score}} @parsed_comments;
 
+        #print Dumper \@parsed_comments;  exit;
+
 ## output the data
 print "This story has received $total pieces of gold across ", scalar(@parsed_comments), " comments.\n\n";
 if (!$short) {
@@ -99,7 +102,7 @@ if (!$short) {
             $text =~ s/[\.\s]+$//s;
             $text .= " " . chr(8230);   # &hellip;
         }
-        print qq#[$text]($comment->{url}?context=2 "$comment->{score} points (+$comment->{score_ups} | -$comment->{score_downs})")\n#;
+        print qq#[$text]($comment->{url}?context=2 "$comment->{score} points")\n#;
     }
 }
 if ($short) {
