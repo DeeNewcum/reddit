@@ -57,7 +57,9 @@ foreach my $child (@{$json->{data}{children}}) {
             #while ($text =~ s/($ARGV{'-b'})/\e[91m$1\e[0m/gs) {
             $text =~ s/($ARGV{'-b'})/\e[91m$1\e[0m/gs;
         }
-        $text = word_wrap(reddit_unescape($text));
+        $text = reddit_unescape($text);
+        $text =~ s/^(>.*)/\e[90m$1\e[0m/gm;
+        $text = word_wrap($text);
         $text =~ s/^/    /mg;
         print "$text\n\n";
     } else {
