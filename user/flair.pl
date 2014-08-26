@@ -13,6 +13,7 @@
     #use Devel::Comments;           # uncomment this during development to enable the ### debugging statements
 
 
+binmode(STDOUT, ":utf8");           # SENDS UTF8 TO STDOUT
 
 
 my $username = shift or die "specify a username\n";
