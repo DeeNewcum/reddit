@@ -1,0 +1,281 @@
+<style>
+    tr.doesntwork td {background-color:#faa}
+    tr.doesntwork * {text-decoration: line-through}
+</style>
+
+<style>
+    /* --==##  simple spacer  ##==-- */
+    ins {margin-left:3em; text-decoration:none}
+    del {margin:0 0 0 1.5em; padding:0; text-decoration:none}     /* half-width */
+                    /* ^^ abuses the <ins> and <del> tags, uses them for something else entirely */
+
+    /* --==##  default to sans-serif font  ##==-- */
+                    /* but when printing, use the default serif */
+    body, td {font-family: sans-serif}
+    @media print { body, td {font-family: serif} }
+
+    /* --==##  links aren't underlined unless you :hover  ##==-- */
+    a:link:hover {text-decoration:underline; background-color:#aaf; color:#000!important}
+    a:visited:hover {background-color:#faf; color:#000!important}
+    a {text-decoration:none}
+    @media print { a {text-decoration:underline} }
+
+    /* --==##  make h1/h2/h3 stand out with bars  ##==-- */
+    h1, h2, h3 {padding:0.3em; border-top:2px solid #000; border-bottom:2px solid #000;
+    background-color:#ccc; margin-top:2em}
+    body>h1:first-child, body>h2:first-child, body>h3:first-child {margin-top:0}
+
+    /* --==##  table cells have a nice border  ##==-- */
+    table.wikitable {border-collapse:collapse}
+    table.wikitable td, table.wikitable th {border:1px solid #aaa; padding:0.3em}
+    table.wikitable th {background-color:#000; color:#fff}
+    table.wikitable th a {color:#aaf}
+    table.wikitable th a:visited {color:#faf}
+    table.wikitable tr.header td, table.wikitable thead td {border:#fff}
+
+    /* --==##  kbd has gray background  ##==-- */
+    kbd {background-color:#bbb}
+
+    /* --==##  selectively make ul/ol spaced (non-cascading)  ##==-- */
+    ul.spaced > li, ol.spaced > li {margin-bottom:1em}
+    .spaced > li > .spaced {margin-top:1em}
+
+    /* --==##  CSS reset  ##==-- */
+    a img {border:0}
+
+    /* --==##  text is grayed-out for digressions  ##==-- */
+    .digression     {color:#aaa}
+    span.digression {margin-left:2em}
+    .digression     a {color:#aaf}
+    .digression     a:visited {color:#e9e}
+
+    /* BODY option -- make ul/ol be half-spaced */
+    ul.halfspaced > li,   ol.halfspaced > li,   body.halfspaced li {margin-bottom:0.5em}
+    .halfspaced > li > .halfspaced,  .spaced > li > .halfspaced,  body.halfspaced li > ul,  body.halfspaced li > ol {margin-top:0.5em}
+</style>
+
+<style>
+
+    .reddit_infobar {
+        background-color: #f6e69f;
+        border: 1px solid #ffa500;
+        margin-left:2em;
+        padding:0.2em 0.3em;
+        /* display:table-cell; */
+        display:table;
+    }
+
+    .monospace_col2 td:nth-child(2) {
+        font-family: monospace;
+    }
+
+    .monospace_col3 td:nth-child(3) {
+        font-family: monospace;
+    }
+
+</style>
+
+<body class="">
+
+
+
+<center>
+<form action="http://www.reddit.com/search">
+<input type="text"      name="q"                                    placeholder="search reddit" size=40 />
+<input type="hidden"    name="syntax"       value="cloudsearch" />
+</form>
+</center>
+
+
+<div style="font-size:150%; color:red">TODO: post this in <a href="http://www.reddit.com/r/redditdev/">/r/redditdev</a> (in markdown format) once it's complete</div>
+
+<h3>intro</h3>
+
+Under the hood, Reddit has a different search engine syntax than the one people normally use.  It provides a few extra features.  So far there hasn't been much documentation about how to use it.  Hopefully this will make it easier for others to use it.
+
+<p>The key to accessing the alternate search syntax is to add <b>&amp;syntax=cloudsearch</b> to the end of your search URL.  You will need to modify the search query in the URL bar only, because searching from within the webpage will end up removing the &amp;syntax=cloudsearch parameter.
+
+<p>It's more convenient to use <a href="https://rawgit.com/DeeNewcum/reddit/master/cloudsearch/cloudsearchbox.html">this page</a> to enter your query.
+
+<h3>cloudsearch reference</h3>
+
+<a href="http://docs.aws.amazon.com/cloudsearch/latest/developerguide/searching-compound-queries.html">Here's the CloudSearch manual</a>, it's useful.
+
+<p>
+
+<table class="wikitable monospace_col2">
+
+<tr><td>word prefix
+    <td><a href="http://www.reddit.com/search?q=title%3A%27jailb*%27&syntax=cloudsearch">'jailb*'</a>
+
+<tr><td>phrase
+    <td><a href="http://www.reddit.com/search?q=title%3A%27%22why+you+no%22%27&syntax=cloudsearch">'"why you no"'</a>
+
+<tr><td>number range
+    <td><a href="http://www.reddit.com/search?q=num_comments%3A1000..2000&syntax=cloudsearch">1000..2000</a>
+
+<tr><td>open-ended number range
+    <td><a href="http://www.reddit.com/search?q=num_comments%3A40000..&sort=comments&syntax=cloudsearch">40000..</a>
+
+<tr><td>boolean operators       <br><del/> (<a href="https://en.wikipedia.org/wiki/Polish_notation">prefix notation</a>)
+    <td><a href="http://www.reddit.com/search?q=%28and+%27jailb*%27+%28not+%27jailbait%27%29%29&syntax=cloudsearch">(and 'jailb*' (not 'jailbait'))</a>
+
+</table>
+
+<p>If you get the error
+
+    <ul class=reddit_infobar>I couldn't understand your query, so I simplified it and searched for "..." instead.</ul>
+
+<p>there's an error in your query syntax.  Although it still displays search results, it has dropped back to the Lucene search syntax, and really isn't doing what you want.
+
+
+<h3>search fields</h3>
+
+<table class="wikitable monospace_col3">
+
+<tr><th>field
+    <th>description
+    <th>example
+
+<tr><td>title:
+    <td>thread title
+    <td><a href="http://www.reddit.com/search?q=title%3A%27egg%27&syntax=cloudsearch">title:'egg'</a>
+
+<tr><td>selftext:
+    <td>body of a self-text thread
+    <td><a href="http://www.reddit.com/search?q=selftext%3A%27cheese%27&syntax=cloudsearch">selftext:'cheese'</a>
+
+<tr><td>author:
+    <td>author's name
+    <td><a href="http://www.reddit.com/search?q=author%3A%27NY1227%27&syntax=cloudsearch">author:'NY1227'</a>
+
+<tr><td>site:
+    <td>website
+    <td><a href="http://www.reddit.com/search?q=site%3A%27youtube.com%27&syntax=cloudsearch">site:'youtube.com'</a>
+
+<tr><td>url:
+    <td>
+    <td><a href="http://www.reddit.com/search?q=url%3A%27twitter.com%2Fwojyahoonba%27&syntax=cloudsearch">url:'twitter.com/wojyahoonba'</a>
+
+<tr><td>flair_text:
+    <td>flair attached to the story
+    <td><a href="http://www.reddit.com/search?q=flair_text%3A%27dry%27&syntax=cloudsearch">flair_text:'dry'</a>
+
+<tr><td>flair_css_class:
+    <td>CSS class associated with the flair
+    <td><a href="http://www.reddit.com/search?q=%28and+subreddit%3A%27gametales%27+flair_css_class%3A%27table%27%29&syntax=cloudsearch">(and subreddit:'gametales' flair_css_class:'table')</a>
+
+<tr><td>subreddit:
+    <td>subreddit it was posted in
+    <td><a href="http://www.reddit.com/search?q=%28or+subreddit%3A%27pics%27+subreddit%3A%27aww%27%29&syntax=cloudsearch">(or subreddit:'pics' subreddit:'aww')</a>
+
+<tr><td colspan=3>&nbsp;
+
+<tr><td>timestamp:
+    <td><a href="http://soft.zoneo.net/Unixtime/">Unix time</a> the thread was created
+    <td><a href="http://www.reddit.com/search?q=timestamp%3A1356998400..1357084799&syntax=cloudsearch">timestamp:1356998400..1357084799</a>
+
+<tr><td>num_comments:
+    <td>number of comments (note: may give results with fewer comments when comments have been deleted)
+    <td><a href="http://www.reddit.com/search?q=num_comments%3A40000..&sort=comments&syntax=cloudsearch">num_comments:40000..</a>
+
+<tr><td>nsfw:
+    <td>is the thread marked NSFW?  (0=SFW, 1=NSFW)
+    <td><a href="http://www.reddit.com/search?q=%28and+title%3A%27fruit%27+nsfw%3A1%29&syntax=cloudsearch">(and title:'fruit' nsfw:1)</a>
+
+<tr><td>self:
+    <td>is the thread a self-thread? (0=link, 1=self post)
+    <td><a href="http://www.reddit.com/search?q=%28and+subreddit%3A%27aww%27+self%3A1%29&syntax=cloudsearch">(and subreddit:'aww' self:1)</a>
+
+<tr><td>downs:
+    <td>number of downvotes
+    <td><a href="http://www.reddit.com/search?q=downs%3A4000..&syntax=cloudsearch">downs:4000..</a>
+
+<tr><td>ups:
+    <td>number of upvotes
+    <td><a href="http://www.reddit.com/search?q=ups%3A13000..&sort=top&syntax=cloudsearch">ups:13000..</a>
+
+<tr><td>sr_id:
+    <td><a href="http://paperlined.org/online/base36.html">base36 decoded version</a> of the subreddit ID
+    <td><a href="http://www.reddit.com/search?q=sr_id%3A4606680&syntax=cloudsearch">sr_id:4606680</a><br>(4606680 = "t5_2qqjc" = /r/todayilearned)
+
+<tr><td>fullname:
+    <td><A href="http://www.reddit.com/dev/api#fullnames">the fullname of the thread</a> (should begin with "t3_")
+    <td><a href="http://www.reddit.com/search?q=fullname%3A%27t3_19990k%27&syntax=cloudsearch">fullname:'t3_19990k'</a>
+
+</table>
+
+<p>In fact, this is how things like <a href="https://github.com/reddit/reddit/blob/90cfcaaecc56cf35e75824e69793fe596771d0d9/r2/r2/lib/cloudsearch.py#L1019-L1023">multireddit searches</a> and searches over <a href="https://github.com/reddit/reddit/blob/90cfcaaecc56cf35e75824e69793fe596771d0d9/r2/r2/lib/cloudsearch.py#L1006-L1008">"this week"</a> are done &mdash; a subreddit: or timestamp: field is added onto the user's query.
+
+<h3>subreddit fields</h3>
+
+<center>
+<form action="http://www.reddit.com/subreddits/search">
+<input type="text"      name="q"                                    placeholder="find a subreddit" size=40 />
+<input type="hidden"    name="syntax"       value="cloudsearch" />
+</form>
+</center>
+
+You can also use CloudSearch syntax when searching subreddits.
+
+<p>
+<table class=wikitable>
+
+<tr><th>field
+    <th>type
+    <th>description
+    <th>examples
+
+<tr><td>language:
+    <td>str
+    <td>find subreddits for a specific language
+            <br>(although it seems to be <a href="http://www.reddit.com/r/de/about/sidebar">woefully incomplete</a>)
+    <td><a href="http://www.reddit.com/subreddits/search?q=language%3Ade&syntax=cloudsearch">de</a>,
+        <a href="http://www.reddit.com/subreddits/search?q=language%3Aes&syntax=cloudsearch">es</a>
+
+<tr><td>name:
+    <td>str
+    <td>No idea.  How is this different from
+            <a href="http://www.reddit.com/subreddits/search?q=description%3Acalifornia&syntax=cloudsearch">description:</a>,
+            or <a href="http://www.reddit.com/subreddits/search?q=california&syntax=cloudsearch">searching no specific field</a>??
+    <td><a href="http://www.reddit.com/subreddits/search?q=name%3Acalifornia&syntax=cloudsearch">[1]</a>
+
+<tr><td>description:
+    <td>str
+    <td>No idea.
+    <td><a href="http://www.reddit.com/subreddits/search?q=title%3Acalifornia&syntax=cloudsearch">[1]</a>
+
+<tr><td>sidebar:
+    <td>str
+    <td>Very rarely but sometimes matches.  Maybe this was <a href="http://www.reddit.com/r/changelog/comments/tztot/reddit_change_subreddits_now_have_a_public/">disabled at some point,</a> but it still has some stale data in the index?
+            <!-- <br>(much as <a href="http://www.reddit.com/search?q=num_comments%3A1000&syntax=cloudsearch">this query</a> returns several hits that no longer have 1000 comments?) -->
+    <td><a href="http://www.reddit.com/subreddits/search?q=sidebar%3Athey&syntax=cloudsearch">[1]</a>
+
+<tr><td>header_title:
+    <td>str
+    <td>This one seems to <i>never</i> match.
+    <td><a href="http://www.reddit.com/subreddits/search?q=header_title%3Aknow&syntax=cloudsearch">[1]</a>
+
+</table>
+
+
+<h3>relationship between CloudSearch and normal search</h3>
+
+When someone does a normal search, their query gets converted to an Amazon CloudSearch query, and the CloudSearch engine does the work of finding the results.  The query syntax conversion is partly done to <a href="http://www.reddit.com/r/redditdev/comments/txuic/search_syntax_update_returning_to_lucene_by/">provide continuity</a> with Reddit's older search engine (<a href="http://lucene.apache.org/core/3_6_0/queryparsersyntax.html">Apache Lucene</a>), and partly because the Lucene search syntax is much easier to use.
+
+<p>The public-facing syntax currently in use is actually parsed by the <a href="https://pythonhosted.org/Whoosh/querylang.html">Whoosh</a> library (which uses a search syntax that's "very similar to Lucene"), and then the <a href="https://github.com/kemitche/l2cs">L2CS library</a> takes the output from the Whoosh parser and builds a CloudSearch query.
+
+<p>Note that there's <a href="http://www.reddit.com/r/bugs/comments/2cwjz9/search_queries_get_mangled_to_the_point_where/">a serious bug</a> in the syntax-converter library.
+
+
+<h3>Reddit Analytics</h3>
+
+There's a related feature called <a href="http://www.reddit.com/r/redditanalytics">redditanalytics.com</a>.  It's currently in pre-beta, and is scheduled to be finished ~October 2014, but some functionality is already available.
+
+<p>One benefit is that it <a href="http://www.reddit.com/r/redditdev/comments/22s6vp/searching_reddit_comments_is_now_possible/">allows you to search comments</a>.
+
+
+<!--
+    other links that are possibly useful:
+            http://www.reddit.com/r/Python/comments/1ni0bc/whoosh_a_fast_pure_python_search_engine_library/ccjoesr?context=2
+-->

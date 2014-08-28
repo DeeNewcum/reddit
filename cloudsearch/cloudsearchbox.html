@@ -1,0 +1,93 @@
+<style>
+    /* --==##  simple spacer  ##==-- */
+    ins {margin-left:3em; text-decoration:none}
+    del {margin:0 0 0 1.5em; padding:0; text-decoration:none}     /* half-width */
+                    /* ^^ abuses the <ins> and <del> tags, uses them for something else entirely */
+
+    /* --==##  default to sans-serif font  ##==-- */
+                    /* but when printing, use the default serif */
+    body, td {font-family: sans-serif}
+    @media print { body, td {font-family: serif} }
+
+    /* --==##  links aren't underlined unless you :hover  ##==-- */
+    a:link:hover {text-decoration:underline; background-color:#aaf; color:#000!important}
+    a:visited:hover {background-color:#faf; color:#000!important}
+    a {text-decoration:none}
+    @media print { a {text-decoration:underline} }
+
+    /* --==##  make h1/h2/h3 stand out with bars  ##==-- */
+    h1, h2, h3 {padding:0.3em; border-top:2px solid #000; border-bottom:2px solid #000;
+    background-color:#ccc; margin-top:2em}
+    body>h1:first-child, body>h2:first-child, body>h3:first-child {margin-top:0}
+
+    /* --==##  table cells have a nice border  ##==-- */
+    table.wikitable {border-collapse:collapse}
+    table.wikitable td, table.wikitable th {border:1px solid #aaa; padding:0.3em}
+    table.wikitable th {background-color:#000; color:#fff}
+    table.wikitable th a {color:#aaf}
+    table.wikitable th a:visited {color:#faf}
+    table.wikitable tr.header td, table.wikitable thead td {border:#fff}
+
+    /* --==##  kbd has gray background  ##==-- */
+    kbd {background-color:#bbb}
+
+    /* --==##  selectively make ul/ol spaced (non-cascading)  ##==-- */
+    ul.spaced > li, ol.spaced > li {margin-bottom:1em}
+    .spaced > li > .spaced {margin-top:1em}
+
+    /* --==##  CSS reset  ##==-- */
+    a img {border:0}
+
+    /* --==##  text is grayed-out for digressions  ##==-- */
+    .digression     {color:#aaa}
+    span.digression {margin-left:2em}
+    .digression     a {color:#aaf}
+    .digression     a:visited {color:#e9e}
+
+    /* BODY option -- make ul/ol be half-spaced */
+    ul.halfspaced > li,   ol.halfspaced > li,   body.halfspaced li {margin-bottom:0.5em}
+    .halfspaced > li > .halfspaced,  .spaced > li > .halfspaced,  body.halfspaced li > ul,  body.halfspaced li > ol {margin-top:0.5em}
+</style>
+
+<body class="">
+
+
+<center>
+<form action="http://www.reddit.com/search">
+<input type="text"      name="q"                                    placeholder="search reddit" size=40 />
+<input type="hidden"    name="syntax"       value="cloudsearch" />
+</form>
+</center>
+
+
+<p>TODO:
+
+<ul class=spaced>
+<li>integrate <a href="http://sugarjs.com/dates">Sugar as a date parser</a>, to generate <code style="margin:0 1em">timestamp:999..999</code> strings.
+
+<li>load the search results in a lower iframe window
+        <ul class=digression>
+        YES, I know that iframes are terrible.  But this is one of the few cases that I think it's ok.  Also, we should [Phase2] have an IFRAME TOGGLE that allows the user to decide whether to use the iframe or not.
+        </ul>
+
+<li>[Phase2] allow the user to specify several things via the query parameter;  this way, the user can bookmark things
+    <ul class=spaced>
+    <li>the search string
+    <li>[Phase3] whether to initiate the search
+    <li>[Phase3] the "from" and "to" dates, <i>separate</i> from the search string
+                <ins/>Ideally, this would be used to update the query string before searching, so that a "1 hour ago" timestamp could provide an updated timestamp every time the page was loaded.
+    </ul>
+
+<li>before releasing this:
+
+    <ul class=spaced>
+    <li>dogfood it for a few days
+    <li>post it to the Github Pages under <a href="https://github.com/DeeNewcum/reddit/">github.com/DeeNewcum/reddit/</a>, along with the Cloudsearch reference
+    </ul>
+
+<li>to release this:
+    <ul>
+    <li>post it in <a href="http://www.reddit.com/r/redditdev/">/r/redditdev</a>
+    </ul>
+
+</ul>
