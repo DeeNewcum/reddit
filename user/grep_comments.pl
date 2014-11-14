@@ -24,6 +24,7 @@
 
 
 
+binmode STDOUT, ":encoding(UTF-8)";
 
 sub usage {$/=undef; die <DATA>}
 defined($filename) or usage();
