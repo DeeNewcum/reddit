@@ -12,6 +12,9 @@
         $filename = shift @ARGV;
     }
     use Getopt::Casual;
+
+    use FindBin;
+    use lib $FindBin::Bin;
     use SprintfReddit;
 
     #use Const::Fast;
