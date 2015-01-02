@@ -87,8 +87,6 @@
 </center>
 
 
-<div style="font-size:150%; color:red">TODO: post this in <a href="http://www.reddit.com/r/redditdev/">/r/redditdev</a> (in markdown format) once it's complete</div>
-
 <h3>intro</h3>
 
 Under the hood, Reddit has a different search engine syntax than the one people normally use.  It provides a few extra features.  So far there hasn't been much documentation about how to use it.  Hopefully this will make it easier for others to use it.
@@ -99,7 +97,7 @@ Under the hood, Reddit has a different search engine syntax than the one people 
 
 <h3>cloudsearch reference</h3>
 
-<a href="http://docs.aws.amazon.com/cloudsearch/latest/developerguide/searching-compound-queries.html">Here's the CloudSearch manual</a>, it's useful.
+<a href="http://docs.aws.amazon.com/cloudsearch/latest/developerguide/searching-compound-queries.html">Here's the CloudSearch manual</a> <a href="http://docs.aws.amazon.com/cloudsearch/latest/developerguide/search-api.html#structured-search-syntax">[2]</a>, it's useful.
 
 <p>
 
@@ -126,7 +124,7 @@ Under the hood, Reddit has a different search engine syntax than the one people 
 
     <ul class=reddit_infobar>I couldn't understand your query, so I simplified it and searched for "..." instead.</ul>
 
-<p>there's an error in your query syntax.  Although it still displays search results, it has dropped back to the Lucene search syntax, and really isn't doing what you want.
+<p>that means there's a syntax error in your query.  Although it still displays search results, it has dropped back to the Lucene search syntax, and really isn't doing what you want.
 
 
 <h3>search fields</h3>
@@ -136,6 +134,11 @@ Under the hood, Reddit has a different search engine syntax than the one people 
 <tr><th>field
     <th>description
     <th>example
+
+<tr><td>text:
+    <td>multiple fields &mdash; title + author + subreddit + selftext
+        <br>(this is the field used when you do a basic search)
+    <td><a href="http://www.reddit.com/search?q=text%3A%27Shitty_Watercolour%27&syntax=cloudsearch">text:'shitty_watercolour'</a>
 
 <tr><td>title:
     <td>thread title
@@ -157,6 +160,10 @@ Under the hood, Reddit has a different search engine syntax than the one people 
     <td>
     <td><a href="http://www.reddit.com/search?q=url%3A%27twitter.com%2Fwojyahoonba%27&syntax=cloudsearch">url:'twitter.com/wojyahoonba'</a>
 
+<tr><td>flair:
+    <td>multiple fields &mdash; flair_text + flair_css_class
+    <td>
+
 <tr><td>flair_text:
     <td>flair attached to the story
     <td><a href="http://www.reddit.com/search?q=flair_text%3A%27dry%27&syntax=cloudsearch">flair_text:'dry'</a>
@@ -172,7 +179,7 @@ Under the hood, Reddit has a different search engine syntax than the one people 
 <tr><td colspan=3>&nbsp;
 
 <tr><td>timestamp:
-    <td><a href="http://soft.zoneo.net/Unixtime/">Unix time</a> the thread was created
+    <td><a href="http://paperlined.org/online/unix_time.html">Unix time</a> the thread was created
     <td><a href="http://www.reddit.com/search?q=timestamp%3A1356998400..1357084799&syntax=cloudsearch">timestamp:1356998400..1357084799</a>
 
 <tr><td>num_comments:
@@ -180,12 +187,18 @@ Under the hood, Reddit has a different search engine syntax than the one people 
     <td><a href="http://www.reddit.com/search?q=num_comments%3A40000..&sort=comments&syntax=cloudsearch">num_comments:40000..</a>
 
 <tr><td>nsfw:
+        <br>over18:
     <td>is the thread marked NSFW?  (0=SFW, 1=NSFW)
     <td><a href="http://www.reddit.com/search?q=%28and+title%3A%27fruit%27+nsfw%3A1%29&syntax=cloudsearch">(and title:'fruit' nsfw:1)</a>
 
 <tr><td>self:
+        <br>is_self:
     <td>is the thread a self-thread? (0=link, 1=self post)
-    <td><a href="http://www.reddit.com/search?q=%28and+subreddit%3A%27aww%27+self%3A1%29&syntax=cloudsearch">(and subreddit:'aww' self:1)</a>
+    <td><a href="http://www.reddit.com/search?q=%28and+subreddit%3A%27aww%27+self%3A1%29&syntax=cloudsearch">(and subreddit:'aww' is_self:1)</a>
+
+<tr><td>top:
+    <td>total score
+    <td>
 
 <tr><td>downs:
     <td>number of downvotes
@@ -222,46 +235,50 @@ You can also use CloudSearch syntax when searching subreddits.
 <table class=wikitable>
 
 <tr><th>field
-    <th>type
     <th>description
-    <th>examples
+    <th>example
+
+<tr><td>text:
+    <td>multiple fields — name + title + description
+        <br>(this is the field used when you do a basic search)
 
 <tr><td>language:
-    <td>str
     <td>find subreddits for a specific language
             <br>(although it seems to be <a href="http://www.reddit.com/r/de/about/sidebar">woefully incomplete</a>)
     <td><a href="http://www.reddit.com/subreddits/search?q=language%3Ade&syntax=cloudsearch">de</a>,
         <a href="http://www.reddit.com/subreddits/search?q=language%3Aes&syntax=cloudsearch">es</a>
 
 <tr><td>name:
-    <td>str
     <td>No idea.  How is this different from
-            <a href="http://www.reddit.com/subreddits/search?q=description%3Acalifornia&syntax=cloudsearch">description:</a>,
-            or <a href="http://www.reddit.com/subreddits/search?q=california&syntax=cloudsearch">searching no specific field</a>??
+            <a href="http://www.reddit.com/subreddits/search?q=description%3Acalifornia&syntax=cloudsearch">description:</a> ?
     <td><a href="http://www.reddit.com/subreddits/search?q=name%3Acalifornia&syntax=cloudsearch">[1]</a>
 
 <tr><td>description:
-    <td>str
     <td>No idea.
     <td><a href="http://www.reddit.com/subreddits/search?q=title%3Acalifornia&syntax=cloudsearch">[1]</a>
 
 <tr><td>sidebar:
-    <td>str
     <td>Very rarely but sometimes matches.  Maybe this was <a href="http://www.reddit.com/r/changelog/comments/tztot/reddit_change_subreddits_now_have_a_public/">disabled at some point,</a> but it still has some stale data in the index?
             <!-- <br>(much as <a href="http://www.reddit.com/search?q=num_comments%3A1000&syntax=cloudsearch">this query</a> returns several hits that no longer have 1000 comments?) -->
     <td><a href="http://www.reddit.com/subreddits/search?q=sidebar%3Athey&syntax=cloudsearch">[1]</a>
 
 <tr><td>header_title:
-    <td>str
     <td>This one seems to <i>never</i> match.
     <td><a href="http://www.reddit.com/subreddits/search?q=header_title%3Aknow&syntax=cloudsearch">[1]</a>
+
+<tr><td>activity:   <td>?    <td>
+<tr><td>link_type:  <td>?    <td>
+<tr><td>subscribers:    <td>?    <td>
+<tr><td>title:  <td>?    <td>
+<tr><td>type:   <td>?    <td>
+<tr><td>nsfw:<br>over18:    <td>?    <td>
 
 </table>
 
 
 <h3>relationship between CloudSearch and normal search</h3>
 
-When someone does a normal search, their query gets converted to an Amazon CloudSearch query, and the CloudSearch engine does the work of finding the results.  The query syntax conversion is partly done to <a href="http://www.reddit.com/r/redditdev/comments/txuic/search_syntax_update_returning_to_lucene_by/">provide continuity</a> with Reddit's older search engine (<a href="http://lucene.apache.org/core/3_6_0/queryparsersyntax.html">Apache Lucene</a>), and partly because the Lucene search syntax is much easier to use.
+When someone does a normal search, their query gets converted to an Amazon CloudSearch query, and the CloudSearch engine does the work of finding the results.  The query syntax conversion is partly done to <a href="http://www.reddit.com/r/redditdev/comments/txuic/search_syntax_update_returning_to_lucene_by/">provide continuity</a> with Reddit's older search engine (<a href="http://lucene.apache.org/core/3_6_0/queryparsersyntax.html">Apache Lucene</a>), and partly because the Lucene search syntax is much easier for regular users to use.
 
 <p>The public-facing syntax currently in use is actually parsed by the <a href="https://pythonhosted.org/Whoosh/querylang.html">Whoosh</a> library (which uses a search syntax that's "very similar to Lucene"), and then the <a href="https://github.com/kemitche/l2cs">L2CS library</a> takes the output from the Whoosh parser and builds a CloudSearch query.
 
@@ -270,7 +287,7 @@ When someone does a normal search, their query gets converted to an Amazon Cloud
 
 <h3>Reddit Analytics</h3>
 
-There's a related feature called <a href="http://www.reddit.com/r/redditanalytics">redditanalytics.com</a>.  It's currently in pre-beta, and is scheduled to be finished ~October 2014, but some functionality is already available.
+There's a related feature called <a href="http://www.reddit.com/r/redditanalytics">redditanalytics.com</a>.  It's currently in pre-beta, and says it "should be finished by October 1, 2014", but some functionality has been made available since early 2014.
 
 <p>One benefit is that it <a href="http://www.reddit.com/r/redditdev/comments/22s6vp/searching_reddit_comments_is_now_possible/">allows you to search comments</a>.
 
