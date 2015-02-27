@@ -18,6 +18,7 @@
 
 my $username = shift
         or die "please specify a Reddit username\n";
+$username =~ s#^https?://([^/]+\.)?reddit\.com/user/##;
 
 my $after = undef;
 
