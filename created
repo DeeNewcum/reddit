@@ -9,6 +9,7 @@
     use LWP::Simple;
     use JSON::XS;
     use Data::Dumper;
+    use POSIX;
 
     # see http://www.reddit.com/dev/api#fullnames
     my %type_prefixes = (
@@ -78,13 +79,16 @@ if (!defined($request_type)) {
 }
 my $created      = $json->{data}{created_utc};
 my $last_updated = $json->{data}{edited};
-            #die Dumper [$kind, $created, $last_updated];
+            #die Dumper [$json->{kind}, $created, $last_updated];
+
+POSIX::tzset();
+my $local_timezone = (POSIX::tzname())[0];
 
 print "This $type_prefixes{$request_type} was created on:\n\t",
-        scalar(gmtime($created)), "\n";
+        scalar(localtime($created)), " $local_timezone\n";
 
 if (defined($last_updated) && $last_updated > 0 && $last_updated != $created) {
     print "and last updated on:\n\t",
-        scalar(gmtime($last_updated)), "\n";
+        scalar(localtime($last_updated)), " $local_timezone\n";
 }
 
