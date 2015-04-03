@@ -1,6 +1,36 @@
 #!/usr/bin/perl
 
-# display the list of subreddits they're active in, along with the flair in each one
+# Display the list of subreddits they're active in, along with the flair in each one.
+#
+# Example:
+#
+#    $ ./fetch_all_comments.pl TheCommieDuck
+#
+#    $ ./flair.pl TheCommieDuck.json | grep ^#
+#    #  887   tf2trade              http://steamcommunity.com/profiles/76561198034183306
+#    #  115   SteamGameSwap         http://steamcommunity.com/profiles/76561198034183306
+#    #  46    unitedkingdom         Wiltshire
+#    #  43    Steam                 Princess Flutterslut
+#    #  43    SteamTradingCards     TheCommieDuck
+#    #  14    GlobalOffensiveTrade  http://steamcommunity.com/profiles/76561198034183306
+#    #  9     europe                United Kingdom
+#    #  8     paradoxplaza          Map Staring Expert
+#    #  7     patientgamers         QUBE, Brutal Legend.
+#    #  5     playitforward         7 - 1
+#    #  5     pokemontrades         4828-4413-2266
+#    #  4     ACTrade               4828-4413-2266 | Flutter, Cat-Town
+#    #  3     MLPLounge             Fluttershy
+#    #  3     Music                 TheCommieDuck
+#    #  3     skyrim                flair
+#    #  3     footballmanagergames  Karlstad
+#    #  2     polandball            British Empire
+#    #  2     dogemarket            1/8/2
+#    #  2     catpictures           Meow!
+#    #  2     CasualPokemonTrades   Fluttersloot 4828-4413-2266
+#    #  1     creepyPMs             (◕‿◕✿)
+#    #  1     LucidDreaming         Attempting to start learning
+#    #  1     Diablo                CommieDuck
+
 
     use strict;
     use warnings;
