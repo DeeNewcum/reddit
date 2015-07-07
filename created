@@ -2,6 +2,18 @@
 
 # Pass in a URL to a story/comment/user/subreddit, and it displays the exact date/time that the
 # story/comment/etc was created.
+#
+# Example usage:
+#
+#    $ ./created https://www.reddit.com/r/announcements/comments/28hjga/reddit_changes_individual_updown_vote_counts_no/
+#    This story was created on:
+#        Wed Jun 18 14:39:39 2014 CST
+#    and last updated on:
+#        Wed Jun 18 15:27:23 2014 CST
+#
+#    $ ./created https://www.reddit.com/r/announcements/comments/28hjga/reddit_changes_individual_updown_vote_counts_no/ciazpti
+#    This comment was created on:
+#        Wed Jun 18 14:55:46 2014 CST
 
     use strict;
     use warnings;
