@@ -94,7 +94,7 @@ sub fetch_1000 {
         $this_url .= "?count=$count&after=$after"    if defined($after);
         my $response = get $this_url
                 or last;
-        sleep 2;
+        #sleep 2;
         my $json = $json_obj->decode($response);
         last unless $json->{data}{children};
         push(@data_children, @{$json->{data}{children}});
@@ -113,7 +113,6 @@ sub merge_data_children {
 
     foreach my $data_child (@new_data_children) {
         my $id = $data_child->{data}{id};
-        #print ">>> id = $id\n";        # REMOVE ME
         if (!exists $combined_hashref->{$id}) {
             $combined_hashref->{$id} = $data_child;
             $num_new++;
