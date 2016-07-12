@@ -52,7 +52,10 @@ foreach my $url (
     #$new_entries > 0 or last;
 }
 
-my @combined_data_children = values %combined_data_children;
+my @combined_data_children;
+foreach my $id (sort keys %combined_data_children) {
+    push @combined_data_children, $combined_data_children{$id};
+}
 my $json_out = {data => {children => \@combined_data_children}};
 
 my $filename_out = "$username.json";
