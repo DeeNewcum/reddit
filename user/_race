@@ -2,4 +2,6 @@
 
 # find comments where someone is talking about race / racism, and possibly try to suss out their own race
 
-./grep_comments.pl "$1" -b '(?i)\b(racis[tm]|n[i]gg[e]r|race\b|whites?\b|blacks?\b|poc\b)'
+./grep_comments.pl "$1" -b \
+'(?i)\b(racis[tm]|n[i]gg[e]r|race\b|whites?\b|blacks?\b|poc\b'\
+'|mexic|latin)'
