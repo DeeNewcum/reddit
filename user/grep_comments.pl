@@ -52,6 +52,12 @@ foreach my $child (@{$json->{data}{children}}) {
         if ($ARGV{'-b'}) {
             next unless ($child->{data}{body} =~ /$ARGV{'-b'}/o);
         }
+    } elsif ($child->{kind} eq 't3') {      # story
+        if ($ARGV{'-b'}) {
+            next unless ($child->{data}{title} =~ /$ARGV{'-b'}/o
+                      || $child->{data}{url} =~ /$ARGV{'-b'}/o
+                      || $child->{data}{selftext} =~ /$ARGV{'-b'}/o);
+        }
     }
 
     if ($child->{kind} eq 't1') {           # comment
@@ -64,8 +70,23 @@ foreach my $child (@{$json->{data}{children}}) {
         $text = reddit_unescape($text);
         $text =~ s/^(>.*)/\e[90m$1\e[0m/gm;
         $text = word_wrap($text);
-        $text =~ s/^/    /mg;
+        $text =~ s/^/    /mg;       # indent
         print "$text\n\n";
+    } elsif ($child->{kind} eq 't3') {      # story
+        print sprintf_reddit("%u\n%t\n", $child);
+        my $text = $child->{data}{selftext};
+        if ($text ne '') {
+            if ($ARGV{'-b'}) {
+                #while ($text =~ s/($ARGV{'-b'})/\e[91m$1\e[0m/gs) {
+                $text =~ s/($ARGV{'-b'})/\e[91m$1\e[0m/gs;
+            }
+            $text = reddit_unescape($text);
+            $text =~ s/^(>.*)/\e[90m$1\e[0m/gm;
+            $text = word_wrap($text);
+            $text =~ s/^/    /mg;       # indent
+            print "$text\n";
+        }
+        print "\n";
     } else {
         #print ".\n";
     }

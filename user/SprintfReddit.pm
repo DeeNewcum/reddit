@@ -16,6 +16,8 @@ package SprintfReddit;
             codes => {
                 s => \&percent_s,       # score
                 u => \&percent_u,       # URL
+                t => \&percent_t,       # title
+                f => \&percent_f,       # selF text
             },
         };
 
@@ -23,6 +25,7 @@ package SprintfReddit;
 sub sprintf_reddit {
     my ($format, $thing) = @_;
     #die Dumper $thing;
+    die "Must pass \$thing\n\t" unless $thing;
     return formatter_sprintfreddit($format, map {$thing} 1..99);
 }
 
@@ -50,6 +53,28 @@ sub percent_u {
     } elsif ($json->{kind} eq 't3') {       # story
         return $json->{data}{url};
     } elsif ($json->{kind} eq 't5') {       # subreddit
+        die;
+    }
+}
+
+
+# title
+sub percent_t {
+    my $json = $_;
+    if ($json->{kind} eq 't3') {        # story
+        return $json->{data}{title};
+    } else {
+        die;
+    }
+}
+
+
+# selF text
+sub percent_f {
+    my $json = $_;
+    if ($json->{kind} eq 't3') {        # story
+        return $json->{data}{selftext};
+    } else {
         die;
     }
 }
