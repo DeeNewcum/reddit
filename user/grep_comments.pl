@@ -73,7 +73,7 @@ foreach my $child (@{$json->{data}{children}}) {
         $text =~ s/^/    /mg;       # indent
         print "$text\n\n";
     } elsif ($child->{kind} eq 't3') {      # story
-        print sprintf_reddit("%u\n%t\n", $child);
+        print sprintf_reddit("%u\n%l\n%t\n", $child);
         my $text = $child->{data}{selftext};
         if ($text ne '') {
             if ($ARGV{'-b'}) {

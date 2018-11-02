@@ -15,7 +15,8 @@ package SprintfReddit;
             -as => 'formatter_sprintfreddit',
             codes => {
                 s => \&percent_s,       # score
-                u => \&percent_u,       # URL
+                u => \&percent_u,       # thing-URL
+                l => \&percent_l,       # story urL 
                 t => \&percent_t,       # title
                 f => \&percent_f,       # selF text
             },
@@ -43,20 +44,31 @@ sub percent_s {
 }
 
 
-# URL
+# thing-URL
 sub percent_u {
     my $json = $_;
     if ($json->{kind} eq 't1') {        # comment
         return
-            "http://reddit.com/r/" . $json->{data}{subreddit} . "/comments/" .
+            "https://reddit.com/r/" . $json->{data}{subreddit} . "/comments/" .
             reddit_id_only($json->{data}{link_id}) . "/-/" . $json->{data}{id};
     } elsif ($json->{kind} eq 't3') {       # story
-        return $json->{data}{url};
+      return
+            "https://reddit.com/" . $json->{data}{permalink};
+        #return $json->{data}{url};
     } elsif ($json->{kind} eq 't5') {       # subreddit
         die;
     }
 }
 
+
+# story urL
+sub percent_l {
+    my $json = $_;
+
+    if ($json->{kind} eq 't3') {       # story
+        return $json->{data}{url};
+    }
+}
 
 # title
 sub percent_t {
