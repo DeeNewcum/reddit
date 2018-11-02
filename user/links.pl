@@ -27,3 +27,5 @@
 # curious if it can identify parts of websites I control, for example:
 #
 #           https://github.com/DeeNewcum/
+
+die "This script is not yet implemented.\n";
