@@ -53,7 +53,7 @@ sub percent_u {
             reddit_id_only($json->{data}{link_id}) . "/-/" . $json->{data}{id};
     } elsif ($json->{kind} eq 't3') {       # story
       return
-            "https://reddit.com/" . $json->{data}{permalink};
+            "https://reddit.com" . $json->{data}{permalink};
         #return $json->{data}{url};
     } elsif ($json->{kind} eq 't5') {       # subreddit
         die;
