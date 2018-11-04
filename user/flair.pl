@@ -67,7 +67,8 @@ foreach my $child (@{$json->{data}{children}}) {
             if defined($child->{data}{author_flair_text});
 } 
 
-foreach my $sub (sort {$b->{count} <=> $a->{count}} values %subreddits) {
+my @subreddits_ordered = sort {$b->{count} <=> $a->{count}} values %subreddits;
+foreach my $sub (@subreddits_ordered) {
     next unless ($sub->{count} >= 5 || defined($sub->{flair}));
     printf "%s  %-4d  %-20s  %s\n",
             $sub->{flair} ? "#" : " ",
@@ -76,6 +77,19 @@ foreach my $sub (sort {$b->{count} <=> $a->{count}} values %subreddits) {
             $sub->{flair} || '';
 }
 
+## Print out the top 5 subreddits, which I use for /r/ProfileSummary.
+my @top_5 = splice(@subreddits_ordered, 0, 5);
+print "\n* Your top ", scalar(@top_5), " subreddits by post count are -- ";
+foreach (my $ctr=0; $ctr<@top_5; $ctr++) {
+    if ($ctr == @top_5 - 1) {
+        print "and ";
+    }
+    print "/r\\/", $top_5[$ctr]{name};
+    if ($ctr < @top_5 - 1) {
+        print ", ";
+    }
+}
+print ".\n";
 
 
 # given a chunk of JSON, print the URL that poitns to that
