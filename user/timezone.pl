@@ -77,10 +77,11 @@ foreach my $child (@{$json->{data}{children}}) {
     $by_weekday{$wday}++;   $max_weekday_count = max($max_weekday_count, $by_weekday{$wday});
 } 
 
-print "Hours are in UTC.\n";
+print "       Timestamps of posts.\n";
+print "       Hours are in UTC.\n";
 my $hour_scale_factor = 75 / $max_hour_count;
 foreach my $hour (0..23) {
-    printf "%2d  %s\n",
+    printf "       %2d  %s\n",
         $hour,
         '#'x(($by_hour{$hour} || 0) * $hour_scale_factor);
 }
@@ -89,7 +90,7 @@ print "\n";
 my $weekday_scale_factor = 75 / $max_weekday_count;
 my @wday_name = qw[ Sun Mon Tue Wed Thu Fri Sat ];
 foreach my $weekday (0..6) {
-    printf "%3s  %s\n",
+    printf "       %3s  %s\n",
         $wday_name[$weekday],
         '#'x(($by_weekday{$weekday} || 0) * $weekday_scale_factor);
 }

@@ -67,12 +67,12 @@ foreach my $child (@{$json->{data}{children}}) {
             if defined($child->{data}{author_flair_text});
 } 
 
-print "    #posts subreddit               flair\n";
-print "    ------ ----------------------- -------------------\n";
+print "        #posts subreddit               flair\n";
+print "        ------ ----------------------- -------------------\n";
 my @subreddits_ordered = sort {$b->{count} <=> $a->{count}} values %subreddits;
 foreach my $sub (@subreddits_ordered) {
     next unless ($sub->{count} >= 5 || defined($sub->{flair}));
-    printf "    %-4d  /r/%-20s  %s\n",
+    printf "        %-4d  /r/%-20s  %s\n",
             $sub->{count},
             $sub->{name},
             $sub->{flair} || '';
