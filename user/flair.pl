@@ -78,15 +78,15 @@ foreach my $sub (@subreddits_ordered) {
             $sub->{flair} || '';
 }
 
-## Print out the top 5 subreddits, which I use for /r/ProfileSummary.
-my @top_5 = splice(@subreddits_ordered, 0, 5);
-print "\n* Your top ", scalar(@top_5), " subreddits by post count are -- ";
-foreach (my $ctr=0; $ctr<@top_5; $ctr++) {
-    if ($ctr == @top_5 - 1) {
+## Print out the top 10 subreddits, which I use for /r/ProfileSummary.
+my @top_10 = splice(@subreddits_ordered, 0, 10);
+print "\n* Your top ", scalar(@top_10), " subreddits by post count are -- ";
+foreach (my $ctr=0; $ctr<@top_10; $ctr++) {
+    if ($ctr == @top_10 - 1) {
         print "and ";
     }
-    print "/r\\/", $top_5[$ctr]{name};
-    if ($ctr < @top_5 - 1) {
+    print "/r\\/", $top_10[$ctr]{name};
+    if ($ctr < @top_10 - 1) {
         print ", ";
     }
 }
