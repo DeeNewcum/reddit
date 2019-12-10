@@ -2,4 +2,4 @@
 
 # find comments where the poster is talking about trans* issues
 
-./grep_comments.pl "$1" '(?i)\b((?!=transportation|transmission|transcript|translat|transparen)trans\S*|cis|cisgender)\b' | less
+./grep_comments.pl "$1" -b '(?i)\b((?!=transportation|transmission|transcript|translat|transparen|transform|transfer)trans\S*|cis|cisgender)\b' | less
