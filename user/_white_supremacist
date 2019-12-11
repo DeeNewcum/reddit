@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# find comments where someone is talking about race / racism, and possibly try to suss out their own race
+
+./grep_comments.pl "$1" -b \
+'(?i)\b(n[i]gg[e]r|jews?\b|(supremacis|nationalis|separatis)[mt]\b|nazi\b|blacks?\b|hitler\b|'\
+'14.{1,10}88|\(\(\(.*\)\)\))|shoah|gorillian' \
+    | less
