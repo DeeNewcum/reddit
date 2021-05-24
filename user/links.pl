@@ -28,4 +28,62 @@
 #
 #           https://github.com/DeeNewcum/
 
-die "This script is not yet implemented.\n";
+    use strict;
+    use warnings;
+
+    use JSON::XS;
+    #use Text::Markdown;
+
+    use Data::Dumper;
+
+
+#print Dumper [get_links_from_text(<<'EOF')];
+#    https://paperlined.org/trades/automata/making_automata.md
+#    [testing 1 2 3](https://paperlined.org/academics/united_states_outlier.html)
+#EOF
+#
+#exit;
+
+
+my $username = shift or die "specify a username\n";
+$username =~ s/\.json$//s;
+
+
+open my $fin, '<', "$username.json"     or die $!;
+my $json = decode_json( do {local $/=undef; <$fin>} );
+
+my @links;
+foreach my $child (@{$json->{data}{children}}) {
+    #======== post ========
+    if ($child->{kind} eq 't3') {
+        if ($child->{data}{domain} =~ /^self\./) {
+            push @links, get_links_from_text($child->{data}{selftext});
+        } elsif (exists $child->{data}{url} && $child->{data}{domain} !~ /^[iv]\.redd\.it$/) {
+            push @links, $child->{data}{url};
+        }
+
+    #======== comment ========
+    } elsif ($child->{kind} eq 't1') {
+        push @links, get_links_from_text($child->{data}{body});
+    }
+}
+
+print Dumper \@links;
+
+
+BEGIN {
+    # see https://mathiasbynens.be/demo/url-regex
+    my $url_re = '(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)(?:\.(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)*(?:\.(?:[a-z\x{00a1}-\x{ffff}]{2,})))(?::\d{2,5})?(?:/[^\s]*)?';
+
+    # parse the markdown that's passed in, and return a list of links
+    sub get_links_from_text {
+        my $markdown = shift;
+
+        # Actually, don't parse markdown. We want to find bare URLs too, so just look for anything that
+        # looks like a URL.
+        my @urls = ($markdown =~ m#$url_re#iog);
+
+        # lop off trailing close-parens  (this should only apply when it's inside a markdown-link, but we're not that sophisticated)
+        @urls = map {s/\).*//; $_} @urls;             
+    }
+}
