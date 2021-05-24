@@ -32,6 +32,7 @@
     use warnings;
 
     use JSON::XS;
+    use Mozilla::PublicSuffix qw(public_suffix);
     #use Text::Markdown;
 
     use Data::Dumper;
@@ -68,7 +69,19 @@ foreach my $child (@{$json->{data}{children}}) {
     }
 }
 
+my %domains;
+foreach my $url (@links) {
+    my $one_up = get_public_suffix_one_up($url);
+    $domains{$one_up}++;
+}
+
 print Dumper \@links;
+
+print "\n======== domains ========\n";
+my @sorted = sort {$domains{$a} <=> $domains{$b}} keys %domains;
+foreach my $domain (@sorted) {
+    printf "%4d  https://%s\n", $domains{$domain}, $domain;
+}
 
 
 BEGIN {
@@ -85,5 +98,32 @@ BEGIN {
 
         # lop off trailing close-parens  (this should only apply when it's inside a markdown-link, but we're not that sophisticated)
         @urls = map {s/\).*//; $_} @urls;             
+        
+        # lop off markdown end-link syntax
+        @urls = map {s/\]\(.*//; $_} @urls;             
     }
+}
+
+
+# Given a URL, return its domain name.
+# Yes, there are much better ways t do this. I am eternally sorry.
+# (no I'm not)
+sub get_domain_name {
+    my $url = shift;
+
+    $url =~ s#^.*?//##;
+    $url =~ s#/.*##;
+    return $url;
+}
+
+
+sub get_public_suffix_one_up {
+    my $url = shift;
+    my $domain = get_domain_name($url);
+    my $public_suffix = public_suffix($domain) || '';
+    my @bits = split /\./, $domain;
+    my $count = () = $public_suffix =~ /\./g;       # number of periods in $public_suffix
+    my $one_up = $bits[-1 * ($count + 2)] . "." . $public_suffix;
+    #print "$domain\t\t\t$one_up\t\t\t$count\n";
+    return $one_up;
 }
